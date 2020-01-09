@@ -1,33 +1,34 @@
 node {
     def app
-    
-    stage('Clone repository'){
-    /* Cloning the Repository to our Workspace */
-    
-    //git 'https://github.com/kw2526/web_login_automation.git'
-          checkout scm
+
+    stage('Clone repository') {
+        /* Cloning the Repository to our Workspace */
+
+        checkout scm
     }
-    
-    stage('Built image') {
-    
-      app = docker.build("kw2526/project:${env.BUILD_NUMBER}")
-    
+
+    stage('Build image') {
+        /* This builds the actual image */
+
+        app = docker.build("kw2526/myimage")
     }
-    
+
     stage('Test image') {
-    
-      app.inside { 
-          echo "Test passed"
-       }
+        
+        app.inside {
+            echo "Tests passed"
+        }
     }
-    
+
     stage('Push image') {
-    /* register with dockerhub before push images to the account */
-      docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
-        app.push()
-       }
-     // echo "Trying to Push Docker Build to Dockerhub"
-     }
- }
-    
-    
+        /* 
+			You would need to first register with DockerHub before you can push images to your account
+		*/
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
+             
+	      app.push("${env.BUILD_NUMBER}")
+              app.push("latest")
+            } 
+                //echo "Trying to Push Docker Build to DockerHub"
+    }
+}
